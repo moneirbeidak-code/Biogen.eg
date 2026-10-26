@@ -567,6 +567,18 @@
       text-decoration: none;
     }
 
+    .hamburger {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    .hamburger:hover {
+      background: rgba(5, 191, 219, 0.1);
+    }
+
     .hamburger span {
       display: block;
       width: 24px;
@@ -597,8 +609,8 @@
     }
 
     .lang-switch button {
-      padding: 6px 16px;
-      font-size: 0.85rem;
+      padding: 5px 10px;
+      font-size: 0.8rem;
       font-weight: 700;
       background: transparent;
       border: none;
@@ -606,6 +618,13 @@
       transition: all 0.3s;
       font-family: 'Cairo', sans-serif;
       color: var(--text-muted);
+    }
+
+    @media (min-width: 640px) {
+      .lang-switch button {
+        padding: 6px 16px;
+        font-size: 0.85rem;
+      }
     }
 
     .lang-switch button.active {
@@ -862,10 +881,63 @@
       color: #355761;
     }
 
-    body.light-mode #themeToggle,
+    body.light-mode .hamburger span {
+      background: #0f172a;
+    }
+
+    body.light-mode .hamburger:hover {
+      background: rgba(8, 131, 149, 0.1);
+    }
+
+    body.light-mode .hamburger:hover span {
+      background: #088395;
+    }
+
+    body.light-mode #closeMobileMenu {
+      color: #0f172a;
+    }
+
+    body.light-mode #closeMobileMenu:hover {
+      color: #087b8b;
+    }
+
+    body.light-mode #themeToggle {
+      background: #ffffff;
+      border-color: rgba(8, 131, 149, 0.25);
+      color: #0f172a;
+    }
+
+    body.light-mode #themeToggle:hover {
+      background: rgba(8, 131, 149, 0.1);
+    }
+
     body.light-mode .lang-switch {
       background: #ffffff;
       border-color: rgba(8, 131, 149, 0.25);
+    }
+
+    body.light-mode .lang-switch button {
+      color: #475569;
+    }
+
+    body.light-mode .lang-switch button:hover {
+      color: #087b8b;
+    }
+
+    body.light-mode .lang-switch button.active {
+      background: #088395;
+      color: #ffffff;
+    }
+
+    .mobile-menu-divider {
+      width: 140px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.12);
+      margin: 8px 0 4px 0;
+    }
+
+    body.light-mode .mobile-menu-divider {
+      background: rgba(8, 131, 149, 0.18);
     }
 
     body.light-mode .social-facebook {
@@ -1035,14 +1107,19 @@
     <span id="toast-msg"></span>
   </div>
 
-  <div id="mobileMenu" class="mobile-menu" role="dialog" aria-label="القائمة الرئيسية">
-    <button id="closeMobileMenu" class="absolute top-6 left-6 text-white text-2xl" aria-label="إغلاق القائمة"><i
+  <div id="mobileMenu" class="mobile-menu" role="dialog" aria-modal="true" aria-label="القائمة الرئيسية">
+    <button id="closeMobileMenu" class="absolute top-6 left-6 text-white text-2xl p-2 rounded-lg transition-colors" aria-label="إغلاق القائمة"><i
         class="fa-solid fa-xmark"></i></button>
     <a href="#home" onclick="closeMobile()"><span data-i18n="nav.home">الرئيسية</span></a>
     <a href="#about" onclick="closeMobile()"><span data-i18n="nav.about">عن الشركة</span></a>
     <a href="#services" onclick="closeMobile()"><span data-i18n="nav.services">خدماتنا</span></a>
     <a href="#products" onclick="closeMobile()"><span data-i18n="nav.products">منتجاتنا</span></a>
     <a href="#why-biogen" onclick="closeMobile()"><span data-i18n="nav.why">لماذا بيوجين؟</span></a>
+    <div class="mobile-menu-divider"></div>
+    <div class="lang-switch flex" aria-label="تغيير اللغة | Language Switcher">
+      <button type="button" data-lang="ar" onclick="setLanguage('ar')">عربي</button>
+      <button type="button" class="active" data-lang="en" onclick="setLanguage('en')">EN</button>
+    </div>
   </div>
 
   <nav id="navbar" class="fixed top-0 right-0 left-0 z-50">
@@ -1065,14 +1142,14 @@
         <a href="#why-biogen" class="nav-link" data-tab="why-biogen" onclick="navClick(event)"><span
             data-i18n="nav.why">لماذا بيوجين؟</span></a>
       </div>
-      <div class="flex items-center gap-3">
-        <div class="lang-switch hidden sm:flex">
-          <button data-lang="ar" onclick="setLanguage('ar')">عربي</button>
-          <button class="active" data-lang="en" onclick="setLanguage('en')">EN</button>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="lang-switch flex" aria-label="تغيير اللغة | Language Switcher">
+          <button type="button" data-lang="ar" onclick="setLanguage('ar')">عربي</button>
+          <button type="button" class="active" data-lang="en" onclick="setLanguage('en')">EN</button>
         </div>
         <button id="themeToggle" type="button" aria-label="Switch to light mode" aria-pressed="false">☀️</button>
         <button id="hamburgerBtn" class="hamburger lg:hidden flex flex-col gap-1.5 p-2"
-          aria-label="فتح القائمة"><span></span><span></span><span></span></button>
+          aria-label="قائمة التنقل" aria-expanded="false" aria-controls="mobileMenu"><span></span><span></span><span></span></button>
       </div>
     </div>
   </nav>
@@ -1606,15 +1683,37 @@
       document.querySelectorAll('.lang-switch button').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
       document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.dataset.i18n; if (i18n[key]) el.innerHTML = i18n[key][lang]; });
       buildProductCards(); if (currentProductId) openProductDetail(currentProductId);
+      try { localStorage.setItem('biogen-lang', lang); } catch (e) {}
     }
 
     function navClick(e) { if (currentProductId) { e.preventDefault(); closeProductDetail(); setTimeout(() => { document.querySelector(e.currentTarget.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' }); }, 100); } }
     function goToProducts() { if (currentProductId) closeProductDetail(); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }
 
-    const hamburger = document.getElementById('hamburgerBtn'); const mobileMenu = document.getElementById('mobileMenu');
-    hamburger.addEventListener('click', () => { hamburger.classList.toggle('active'); mobileMenu.classList.toggle('open'); });
+    const hamburger = document.getElementById('hamburgerBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    function openMobile() {
+      hamburger.classList.add('active');
+      hamburger.setAttribute('aria-expanded', 'true');
+      mobileMenu.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobile() {
+      hamburger.classList.remove('active');
+      hamburger.setAttribute('aria-expanded', 'false');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    hamburger.addEventListener('click', () => {
+      if (mobileMenu.classList.contains('open')) {
+        closeMobile();
+      } else {
+        openMobile();
+      }
+    });
     document.getElementById('closeMobileMenu').addEventListener('click', closeMobile);
-    function closeMobile() { hamburger.classList.remove('active'); mobileMenu.classList.remove('open'); }
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileMenu.classList.contains('open')) closeMobile();
+    });
 
     // 🔬 محاكي الجزيئات، الحمض النووي (DNA)، والكبسولات الصيدلانية المتوهجة المتنوعة 
     (function () {
@@ -1738,7 +1837,8 @@
       updateThemeToggle();
     });
 
-    setLanguage('en');
+    const savedLang = (() => { try { return localStorage.getItem('biogen-lang'); } catch (e) { return null; } })() || 'en';
+    setLanguage(savedLang);
   </script>
 </body>
 
